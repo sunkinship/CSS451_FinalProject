@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 375d2af6437301541b73dc70ac98b6f2
+guid: eee30c0449c12c54884b7bf37df3cc89
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -95,18 +95,55 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: "\u2014Pngtree\u2014red button_670227_0"
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 122
+        width: 984
+        height: 985
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7a18e29090eb410489a16f386c41ecd8
+      internalID: 536366956
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
-    internalID: 0
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      "\u2014Pngtree\u2014red button_670227_0": 536366956
+      "\u2014Pngtree\u2014red button_670227_1": -911923479
+      "\u2014Pngtree\u2014red button_670227_10": 578140650
+      "\u2014Pngtree\u2014red button_670227_11": 1932929097
+      "\u2014Pngtree\u2014red button_670227_12": -2073260287
+      "\u2014Pngtree\u2014red button_670227_13": -1832909341
+      "\u2014Pngtree\u2014red button_670227_14": -1049485414
+      "\u2014Pngtree\u2014red button_670227_15": 396700601
+      "\u2014Pngtree\u2014red button_670227_2": 2057076578
+      "\u2014Pngtree\u2014red button_670227_3": 1289935037
+      "\u2014Pngtree\u2014red button_670227_4": 795554268
+      "\u2014Pngtree\u2014red button_670227_5": 1807914432
+      "\u2014Pngtree\u2014red button_670227_6": -379430585
+      "\u2014Pngtree\u2014red button_670227_7": 1108671409
+      "\u2014Pngtree\u2014red button_670227_8": 2071260670
+      "\u2014Pngtree\u2014red button_670227_9": -106406495
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
