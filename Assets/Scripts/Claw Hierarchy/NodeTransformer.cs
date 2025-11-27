@@ -15,12 +15,14 @@ public static class NodeTransformer
         {
             case Axis.X:
                 node.NodeOrigin = new Vector3(pos, node.NodeOrigin.y, node.NodeOrigin.z);
+                //Debug.Log($"X: Set pos to {node.NodeOrigin}");
                 break;
             case Axis.Y:
                 node.NodeOrigin = new Vector3(node.NodeOrigin.x, pos, node.NodeOrigin.z);
                 break;
             case Axis.Z:
                 node.NodeOrigin = new Vector3(node.NodeOrigin.x, node.NodeOrigin.y, pos);
+                //Debug.Log($"Z: Set pos to {node.NodeOrigin}");
                 break;
         }
     }
