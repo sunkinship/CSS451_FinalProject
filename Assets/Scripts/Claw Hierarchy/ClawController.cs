@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
+public enum BodyRotation { None, Left, Right }
 public enum ArmDirection { Up, Down }
 public enum LeafRotation { Open, Close }
 
@@ -14,12 +15,14 @@ public class ClawController : MonoBehaviour
     [Header("Claw Nodes")]
     [SerializeField] private SceneNode clawBase;
     [SerializeField] private SceneNode clawArm;
+    [SerializeField] private SceneNode clawBody;
     [SerializeField] private SceneNode clawLeaf1;
     [SerializeField] private SceneNode clawLeaf2;
 
     [Header("Claw Settings")]
     [SerializeField] private float clawMoveSpeed = 1;
     [SerializeField] private float clawExtendSpeed = 1;
+    [SerializeField] private float clawRotateSpeed = 1;
     [SerializeField] private float clawOpenSpeed = 1;
     [SerializeField] private Transform clawDropLocation; //location above prize drop hole
 
@@ -35,6 +38,7 @@ public class ClawController : MonoBehaviour
     //track current transfomrations to be able to clamp
     private Vector2 currentBasePos;
     private float currentArmPos;
+    private float currentBodyRot;
     private float currentLeaf1Rot;
     private float currentLeaf2Rot;
 
@@ -43,10 +47,12 @@ public class ClawController : MonoBehaviour
     private Vector2 dropPos; //get x and z from drop pos area transform
 
     //track original rotations for rotation calculation
+    private Quaternion bodyOriginalRot;
     private Quaternion leaf1OriginalRot;
     private Quaternion leaf2OriginalRot;
 
     public Vector2 CurrentClawMoveDir { get; private set; } //current move vector
+    public BodyRotation CurrentBodyRotDir { get; private set; } //current direction to rotate in
 
     public bool IsClawDropping => clawDropProcess != null;
     private Coroutine clawDropProcess = null;
@@ -65,6 +71,9 @@ public class ClawController : MonoBehaviour
         currentBasePos = new Vector2(clawBase.NodeOrigin.x, clawBase.NodeOrigin.z);
         currentArmPos = clawArm.NodeOrigin.y;
 
+        currentBodyRot = clawBody.transform.localRotation.y;
+        bodyOriginalRot = clawBody.transform.localRotation;
+
         currentLeaf1Rot = clawLeaf1.transform.localRotation.x;
         currentLeaf2Rot = clawLeaf2.transform.localRotation.x;
 
@@ -82,6 +91,11 @@ public class ClawController : MonoBehaviour
         {
             MoveClawBase(CurrentClawMoveDir);
         }
+
+        if (CurrentBodyRotDir != BodyRotation.None)
+        {
+            RotateClawBody(CurrentBodyRotDir);
+        }
     }
 
     #region ACTION
@@ -89,7 +103,12 @@ public class ClawController : MonoBehaviour
     {
         CurrentClawMoveDir = dir;
     }
-   
+
+    public void UpdateBodyRotDir(BodyRotation dir)
+    {
+        CurrentBodyRotDir = dir;
+    }
+
     public void StartDropProcess()
     {
         if (IsClawDropping)
@@ -101,7 +120,9 @@ public class ClawController : MonoBehaviour
         OnStartDrop?.Invoke();
         clawDropProcess = StartCoroutine(ClawDropPocess());
     }
+    #endregion
 
+    #region HELPER
     private IEnumerator ClawDropPocess()
     {
         //while loops keep running transformation until bound is reached
@@ -130,9 +151,7 @@ public class ClawController : MonoBehaviour
         clawDropProcess = null;
         OnEndDrop?.Invoke();
     }
-    #endregion
-
-    #region HELPER
+    
     private bool OpenClaws() => RotateClawLeafs(LeafRotation.Open);
 
     private bool CloseClaws() => RotateClawLeafs(LeafRotation.Close);
@@ -140,20 +159,10 @@ public class ClawController : MonoBehaviour
     private bool RaiseArm() => ExtendClawArm(ArmDirection.Up);
 
     private bool LowerArm() => ExtendClawArm(ArmDirection.Down);
-
-    private IEnumerator AutoMoveToPosition(Vector2 targetPos) //use for going to and returning from prize drop area
-    {
-        Vector2 moveDir = (targetPos - currentBasePos).normalized;
-        while (Vector2.Distance(currentBasePos, targetPos) > 0.1f)
-        {
-            MoveClawBase(moveDir);
-            yield return null;
-        }
-    }
     #endregion
 
-    #region TRANSFORM
-    public void MoveClawBase(Vector2 direction)
+    #region TRANSFORM OPERATION
+    private void MoveClawBase(Vector2 direction)
     {
         direction *= clawMoveSpeed; //apply speed
 
@@ -184,7 +193,17 @@ public class ClawController : MonoBehaviour
         currentBasePos = new Vector2(targetX, targetZ); //update current position
     }
 
-    public bool ExtendClawArm(ArmDirection direction)
+    private IEnumerator AutoMoveToPosition(Vector2 targetPos) //use for going to and returning from prize drop area
+    {
+        Vector2 moveDir = (targetPos - currentBasePos).normalized;
+        while (Vector2.Distance(currentBasePos, targetPos) > 0.1f)
+        {
+            MoveClawBase(moveDir);
+            yield return null;
+        }
+    }
+
+    private bool ExtendClawArm(ArmDirection direction)
     {
         float directionValue =  direction == ArmDirection.Up ? 1 : -1;
         directionValue *= clawExtendSpeed;
@@ -211,7 +230,19 @@ public class ClawController : MonoBehaviour
         return true; 
     }
 
-    public bool RotateClawLeafs(LeafRotation direction)
+    private void RotateClawBody(BodyRotation direction)
+    {
+        float rotValue = direction == BodyRotation.Left ? -1 : 1;
+        rotValue *= clawRotateSpeed;
+
+        float targetRot = currentBodyRot + rotValue * Time.deltaTime;
+       
+        NodeTransformer.RotateNode(clawBody, targetRot, bodyOriginalRot, Axis.Y, RotationSpace.Local);
+
+        currentBodyRot = targetRot;
+    }
+
+    private bool RotateClawLeafs(LeafRotation direction)
     {
         return (RotateClawLeaf1(direction, clawOpenSpeed) && RotateClawLeaf2(direction, clawOpenSpeed));
     }
@@ -220,7 +251,7 @@ public class ClawController : MonoBehaviour
     {
         float rotValue = direction == LeafRotation.Open ? 1 : -1;
         rotValue *= speed;
-        //Debug.Log($"current {currentLeaf1Rot} rotValue {rotValue}");
+
         float targetRot = currentLeaf1Rot + rotValue * Time.deltaTime;
 
         if (targetRot < clawLeaf1RotMinMax.x) //reached max or min bound

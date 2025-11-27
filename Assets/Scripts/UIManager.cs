@@ -5,8 +5,12 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
 
     [HideInInspector] public bool AllowClawControl = true;
+
     private bool upPressed, downPressed, leftPressed, rightPressed;
     private Vector2 clawMoveDir = Vector2.zero;
+
+    private bool leftRotPressed, rightRotPressed;
+    private BodyRotation clawRotDor = BodyRotation.None;
 
     private void Awake()
     {
@@ -18,25 +22,35 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        ClawController.Instance.OnStartDrop += DisableClawControl;
+        ClawController.Instance.OnStartDrop += DisableClawControl; //disable claw control during drop sequence
         ClawController.Instance.OnEndDrop += EnableClawControl;
     }
 
-    //update claw movement vector based on buttons pressed
+    //update claw movement and rotate direction based on buttons pressed
     void Update()
     {
         if (AllowClawControl == false)
             return;
 
+        //handle move
+        HandleClawMove();
+
+        //handle rotation
+        HandleClawRotation();
+    }
+
+    #region CLAW CONTROL
+    private void HandleClawMove()
+    {
         float x, y;
 
         if (upPressed) //set z axis
             y = 1;
-        else if (downPressed) 
+        else if (downPressed)
             y = -1;
         else
             y = 0;
-        
+
         if (rightPressed) //set x axis
             x = 1;
         else if (leftPressed)
@@ -45,15 +59,37 @@ public class UIManager : MonoBehaviour
             x = 0;
 
         Vector2 newDir = new Vector2(x, y).normalized;
-        if (newDir == clawMoveDir)
+        if (newDir == clawMoveDir) //don't update if state not changed
             return;
 
         clawMoveDir = newDir;
         ClawController.Instance.UpdateClawMoveDir(clawMoveDir);
     }
+    
+    private void HandleClawRotation()
+    {
+        BodyRotation rot;
 
-    #region CLAW
-    public void OnClawUpPressed() { upPressed = true; }
+        if (leftRotPressed)
+            rot = BodyRotation.Left;
+        else if (rightRotPressed)
+            rot = BodyRotation.Right;
+        else
+            rot = BodyRotation.None;
+
+        if (rot == clawRotDor) //don't update if state not changed
+            return;
+
+        clawRotDor = rot;
+        ClawController.Instance.UpdateBodyRotDir(clawRotDor);
+    }
+
+    private void EnableClawControl() => AllowClawControl = true;
+    private void DisableClawControl() => AllowClawControl = false;
+    #endregion
+
+    #region CLAW BUTTONS
+    public void OnClawUpPressed() { upPressed = true; } //move buttons
     public void OnClawUpReleased() { upPressed = false; }
 
     public void OnClawDownPressed() { downPressed = true; }
@@ -65,7 +101,15 @@ public class UIManager : MonoBehaviour
     public void OnClawRightPressed() { rightPressed = true; }
     public void OnClawRightReleased() { rightPressed = false; }
 
-    public void OnClawDropPressed()
+
+    public void OnClawRotateLeftPressed() { leftRotPressed = true; } //rotate buttons
+    public void OnClawRotateLeftReleased() { leftRotPressed = false; }
+
+    public void OnClawRotateRightPressed() { rightRotPressed = true; }
+    public void OnClawRotateRightReleased() { rightRotPressed = false; }
+
+
+    public void OnClawDropPressed() //drop button
     {
         if (AllowClawControl == false)
             return;
@@ -73,8 +117,7 @@ public class UIManager : MonoBehaviour
         ClawController.Instance.StartDropProcess();
     }
 
-    private void EnableClawControl() => AllowClawControl = true;
-    private void DisableClawControl() => AllowClawControl = false;
+    
     #endregion
 
     #region CAMERA
