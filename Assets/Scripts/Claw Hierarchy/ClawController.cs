@@ -34,7 +34,7 @@ public class ClawController : MonoBehaviour
 
     //track current transfomrations to be able to clamp
     private Vector2 currentBasePos;
-    private float currentArmExtend;
+    private float currentArmPos;
     private float currentLeaf1Rot;
     private float currentLeaf2Rot;
 
@@ -63,7 +63,7 @@ public class ClawController : MonoBehaviour
     private void Start()
     {
         currentBasePos = new Vector2(clawBase.NodeOrigin.x, clawBase.NodeOrigin.z);
-        currentArmExtend = clawArm.transform.localScale.y;
+        currentArmPos = clawArm.NodeOrigin.y;
 
         currentLeaf1Rot = clawLeaf1.transform.localRotation.x;
         currentLeaf2Rot = clawLeaf2.transform.localRotation.x;
@@ -160,7 +160,7 @@ public class ClawController : MonoBehaviour
         float targetX = currentBasePos.x + direction.x * Time.deltaTime; //calculate value to add to current pos
         float targetZ = currentBasePos.y + direction.y * Time.deltaTime;
 
-        if (targetX < clawBaseMinPos.x) //handle eaching bounds
+        if (targetX < clawBaseMinPos.x) //handle trying to move past bounds with clamp
         {
             targetX = clawBaseMinPos.x;
         }
@@ -178,7 +178,6 @@ public class ClawController : MonoBehaviour
             targetZ = clawBaseMaxPos.y;
         }
 
-        Debug.Log($"X Target: {targetX} Z Target: {targetZ}");
         NodeTransformer.TranslateNode(clawBase, targetX, Axis.X);
         NodeTransformer.TranslateNode(clawBase, targetZ, Axis.Z);
 
@@ -190,18 +189,26 @@ public class ClawController : MonoBehaviour
         float directionValue =  direction == ArmDirection.Up ? 1 : -1;
         directionValue *= clawExtendSpeed;
 
-        float targetScale = currentArmExtend + directionValue * Time.deltaTime;
-        float clampedScale = Mathf.Clamp(targetScale, clawArmExtendMinMax.x, clawArmExtendMinMax.y);
+        float targetY = currentArmPos + directionValue * Time.deltaTime;
 
-        if (clampedScale == targetScale)
+        if (targetY < clawArmExtendMinMax.x) //return false to indicate bound reached and clamp
         {
+            targetY = clawArmExtendMinMax.x;
+            NodeTransformer.TranslateNode(clawArm, targetY, Axis.Y);
+            return false;
+        }
+        else if (targetY > clawArmExtendMinMax.y)
+        {
+            targetY = clawArmExtendMinMax.y;
+            NodeTransformer.TranslateNode(clawArm, targetY, Axis.Y);
             return false;
         }
 
-        NodeTransformer.ScaleNode(clawArm, clampedScale, Axis.Y);
+        //bounds not reached yet
+        NodeTransformer.TranslateNode(clawArm, targetY, Axis.Y); 
 
-        currentArmExtend = clampedScale;
-        return true;
+        currentArmPos = targetY;
+        return true; 
     }
 
     public bool RotateClawLeafs(LeafRotation direction)
@@ -211,39 +218,57 @@ public class ClawController : MonoBehaviour
 
     private bool RotateClawLeaf1(LeafRotation direction, float speed)
     {
-        float rotValue = direction == LeafRotation.Open ? -1 : 1;
+        float rotValue = direction == LeafRotation.Open ? 1 : -1;
         rotValue *= speed;
-
+        //Debug.Log($"current {currentLeaf1Rot} rotValue {rotValue}");
         float targetRot = currentLeaf1Rot + rotValue * Time.deltaTime;
-        float clampedRot = Mathf.Clamp(targetRot, clawLeaf1RotMinMax.x, clawLeaf1RotMinMax.y);
 
-        if (targetRot == clampedRot)
+        if (targetRot < clawLeaf1RotMinMax.x) //reached max or min bound
         {
+            targetRot = clawLeaf1RotMinMax.x;
+            NodeTransformer.RotateNode(clawLeaf1, targetRot, leaf1OriginalRot, Axis.Z, RotationSpace.Local);
+            currentLeaf1Rot = targetRot;
+            return false;
+        }
+        else if (targetRot > clawLeaf1RotMinMax.y)
+        {
+            targetRot = clawLeaf1RotMinMax.y;
+            NodeTransformer.RotateNode(clawLeaf1, targetRot, leaf1OriginalRot, Axis.Z, RotationSpace.Local);
+            currentLeaf1Rot = targetRot;
             return false;
         }
 
-        NodeTransformer.RotateNode(clawLeaf1, clampedRot, leaf1OriginalRot, Axis.Z, RotationSpace.Local);
+        NodeTransformer.RotateNode(clawLeaf1, targetRot, leaf1OriginalRot, Axis.Z, RotationSpace.Local);
 
-        currentLeaf1Rot = clampedRot;
+        currentLeaf1Rot = targetRot;
         return true;
     }
 
     private bool RotateClawLeaf2(LeafRotation direction, float speed)
     {
-        float rotValue = direction == LeafRotation.Open ? 1 : -1;
+        float rotValue = direction == LeafRotation.Open ? -1 : 1;
         rotValue *= speed;
 
         float targetRot = currentLeaf2Rot + rotValue * Time.deltaTime;
-        float clampedRot = Mathf.Clamp(targetRot, clawLeaf2RotMinMax.x, clawLeaf2RotMinMax.y);
 
-        if (targetRot == clampedRot)
+        if (targetRot < clawLeaf2RotMinMax.x) //reached max or min bound
         {
+            targetRot = clawLeaf2RotMinMax.x;
+            NodeTransformer.RotateNode(clawLeaf2, targetRot, leaf2OriginalRot, Axis.Z, RotationSpace.Local);
+            currentLeaf2Rot = targetRot;
+            return false;
+        }
+        else if (targetRot > clawLeaf2RotMinMax.y)
+        {
+            targetRot = clawLeaf2RotMinMax.y;
+            NodeTransformer.RotateNode(clawLeaf2, targetRot, leaf2OriginalRot, Axis.Z, RotationSpace.Local);
+            currentLeaf2Rot = targetRot;
             return false;
         }
 
-        NodeTransformer.RotateNode(clawLeaf2, clampedRot, leaf2OriginalRot, Axis.Z, RotationSpace.Local);
+        NodeTransformer.RotateNode(clawLeaf2, targetRot, leaf2OriginalRot, Axis.Z, RotationSpace.Local);
 
-        currentLeaf2Rot = clampedRot;
+        currentLeaf2Rot = targetRot;
         return true;
     }
     #endregion
