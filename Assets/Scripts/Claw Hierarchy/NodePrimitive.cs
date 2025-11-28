@@ -9,6 +9,7 @@ public class NodePrimitive : MonoBehaviour
 
     private Renderer r;
     private MaterialPropertyBlock material; //used mat property block instead of regular mat to avoid editor error
+    public Matrix4x4 LatestWorldMatrix { get; private set; }
 
     void Awake()
     {
@@ -22,6 +23,7 @@ public class NodePrimitive : MonoBehaviour
         Matrix4x4 trs = Matrix4x4.TRS(transform.localPosition, transform.localRotation, transform.localScale);
         Matrix4x4 m = nodeMatrix * p * trs * invp;
 
+        LatestWorldMatrix = m;
         if (r == null || material == null)
             GetMaterial();
 

@@ -11,6 +11,8 @@ public class SceneNode : MonoBehaviour
     public List<SceneNode> ChildrenList;
 
     public Quaternion originalRot { get; private set; }
+    public Matrix4x4 LatestWorldMatrix { get; private set; }
+
 
     protected void Start()
     {
@@ -29,6 +31,7 @@ public class SceneNode : MonoBehaviour
         Matrix4x4 orgT = Matrix4x4.Translate(NodeOrigin);
         Matrix4x4 trs = Matrix4x4.TRS(transform.localPosition, transform.localRotation, transform.localScale);
 
+        LatestWorldMatrix = mCombinedParentXform;
         mCombinedParentXform = parentXform * orgT * trs;
 
         // propagate to all children

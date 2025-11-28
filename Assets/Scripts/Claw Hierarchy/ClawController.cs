@@ -18,6 +18,10 @@ public class ClawController : MonoBehaviour
     [SerializeField] private SceneNode clawBody;
     [SerializeField] private SceneNode clawLeaf1;
     [SerializeField] private SceneNode clawLeaf2;
+    [SerializeField] private SceneNode clawLeaf3;
+    [SerializeField] private Transform grabAnchor;
+
+
 
     [Header("Claw Settings")]
     [SerializeField] private float clawMoveSpeed = 1;
@@ -34,6 +38,11 @@ public class ClawController : MonoBehaviour
 
     [SerializeField] private Vector2 clawLeaf1RotMinMax; //x in min, y is max rotation on axis
     [SerializeField] private Vector2 clawLeaf2RotMinMax;
+
+    [Header("Claw Grab Settings")]
+    [SerializeField] private LayerMask prizeMask;
+    private Prize grabbedPrize;
+    private float grabRadius = 0.2f;
 
     //track current transfomrations to be able to clamp
     private Vector2 currentBasePos;
@@ -97,6 +106,10 @@ public class ClawController : MonoBehaviour
             RotateClawBody(CurrentBodyRotDir);
         }
     }
+    void LateUpdate()
+    {
+        grabAnchor.position = clawLeaf3.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
+    }
 
     #region ACTION
     public void UpdateClawMoveDir(Vector2 dir)
@@ -134,6 +147,7 @@ public class ClawController : MonoBehaviour
 
         while (CloseClaws()) //close claws
             yield return null;
+        CheckGrab();
 
         while (RaiseArm()) //raise arm
             yield return null;
@@ -142,6 +156,12 @@ public class ClawController : MonoBehaviour
 
         while (OpenClaws()) //opne claws
             yield return null;
+        if (grabbedPrize != null)
+        {
+            grabbedPrize.OnRelease();
+            grabbedPrize = null;
+        }
+
 
         while (CloseClaws()) //close claws
             yield return null;
@@ -154,11 +174,29 @@ public class ClawController : MonoBehaviour
     
     private bool OpenClaws() => RotateClawLeafs(LeafRotation.Open);
 
-    private bool CloseClaws() => RotateClawLeafs(LeafRotation.Close);
+    private bool CloseClaws() =>RotateClawLeafs(LeafRotation.Close);
 
     private bool RaiseArm() => ExtendClawArm(ArmDirection.Up);
 
     private bool LowerArm() => ExtendClawArm(ArmDirection.Down);
+
+    bool CheckGrab()
+    {
+        Vector3 grabPos = grabAnchor.position;
+        Collider[] hits = Physics.OverlapSphere(grabPos, grabRadius);
+
+        foreach (var hit in hits)
+        {
+            Prize p = hit.GetComponent<Prize>();
+            if (p != null)
+            {
+                grabbedPrize = p;
+                p.OnGrab(grabAnchor);
+                return true;
+            }
+        }
+        return false;
+    }
     #endregion
 
     #region TRANSFORM OPERATION
