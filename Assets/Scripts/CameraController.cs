@@ -172,24 +172,28 @@ public class CameraController : MonoBehaviour
     {
         transform.position = topView.position;
         LookAtTarget();
+        currentPitch = 89;
     }
 
     public void SnapToLeftView()
     {
         transform.position = leftView.position;
         LookAtTarget();
+        currentPitch = 0;
     }
 
     public void SnapToRightView()
     {
         transform.position = rightView.position;
         LookAtTarget();
+        currentPitch = 0;
     }
 
     public void SnapToFrontView()
     {
         transform.position = frontView.position;
         LookAtTarget();
+        currentPitch = 0;
     }
     #endregion
 }
