@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class Prize : MonoBehaviour
 {
+    public static string PRIZE_TAG = "Prize";
+
+    public int scoreValue = 1;
+
     public bool IsGrabbed;
 
     public Rigidbody rb;

@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
@@ -5,6 +6,10 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
 
     [HideInInspector] public bool AllowClawControl = true;
+
+    [Header("Score and Win UI")]
+    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private GameObject winPanel;
 
     private bool upPressed, downPressed, leftPressed, rightPressed;
     private Vector2 clawMoveDir = Vector2.zero;
@@ -139,6 +144,28 @@ public class UIManager : MonoBehaviour
     public void OnFrontCamPressed()
     {
         CameraController.Instance.SnapToFrontView();
+    }
+    #endregion
+
+    #region GAME
+    public void SetScore(int score)
+    {
+        scoreText.text = score.ToString();
+    }
+
+    public void ShowWinPanel()
+    {
+        winPanel.SetActive(true);
+    }
+
+    public void OnPlayAgainPressed()
+    {
+        GameManager.Instance.ResetGame();
+    }
+
+    public void OnQuitPressed()
+    {
+        GameManager.Instance.QuitGame();
     }
     #endregion
 }
