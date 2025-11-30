@@ -126,6 +126,11 @@ public class UIManager : MonoBehaviour
     #endregion
 
     #region CAMERA
+    public void OnClawCamToggle()
+    {
+        CameraController.Instance.ToggleClawMiniCam();
+    }
+
     public void OnTopCamPressed()
     {
         CameraController.Instance.SnapToTopView();

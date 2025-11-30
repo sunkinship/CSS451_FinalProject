@@ -40,6 +40,11 @@ public class CameraController : MonoBehaviour
     private Vector3 startPos;
     private Quaternion startRot;
 
+    //claw cam
+    private bool clawCamEnabled = false;
+    [Header("Claw Mini Cam")]
+    [SerializeField] private GameObject clawCam;
+
     private void Awake()
     {
         if (Instance == null)
@@ -77,12 +82,12 @@ public class CameraController : MonoBehaviour
 
     private void SetModes()
     {
-        if (!Input.GetKey(KeyCode.LeftAlt))
-        {
-            controlMode = ControlMode.None;
-            Zooming = false;
-            return;
-        }
+        //if (!Input.GetKey(KeyCode.LeftAlt))
+        //{
+        //    controlMode = ControlMode.None;
+        //    Zooming = false;
+        //    return;
+        //}
 
         Zooming = Input.mouseScrollDelta.y != 0;
 
@@ -196,4 +201,10 @@ public class CameraController : MonoBehaviour
         currentPitch = 0;
     }
     #endregion
+
+    public void ToggleClawMiniCam()
+    {
+        clawCamEnabled = !clawCamEnabled;
+        clawCam.SetActive(clawCamEnabled);
+    }
 }
