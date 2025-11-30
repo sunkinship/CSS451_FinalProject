@@ -6,8 +6,6 @@ public enum BodyRotation { None, Left, Right }
 public enum ArmDirection { Up, Down }
 public enum LeafRotation { Open, Close }
 
-//control claw using NodeTransformer functions
-//functions called by UI button inputs
 public class ClawController : MonoBehaviour
 {
     public static ClawController Instance;
@@ -19,61 +17,60 @@ public class ClawController : MonoBehaviour
     [SerializeField] private SceneNode clawLeaf1;
     [SerializeField] private SceneNode clawLeaf2;
     [SerializeField] private SceneNode clawLeaf3;
-    [SerializeField] private Transform grabAnchor;
-
-
+    [SerializeField] private SceneNode clawEndPt1;
+    [SerializeField] private SceneNode clawEndPt2;
+    [SerializeField] private Transform grabAnchorLeft;
+    [SerializeField] private Transform grabAnchorRight;
+    [SerializeField] private Transform prizeSpot;
+    [SerializeField] private Transform clawDropLocation;
 
     [Header("Claw Settings")]
-    [SerializeField] private float clawMoveSpeed = 1;
-    [SerializeField] private float clawExtendSpeed = 1;
-    [SerializeField] private float clawRotateSpeed = 1;
-    [SerializeField] private float clawOpenSpeed = 1;
-    [SerializeField] private Transform clawDropLocation; //location above prize drop hole
+    [SerializeField] private float clawMoveSpeed = 1f;
+    [SerializeField] private float clawExtendSpeed = 1f;
+    [SerializeField] private float clawRotateSpeed = 1f;
+    [SerializeField] private float clawOpenSpeed = 1f;
 
     [Header("Claw Transform Bounds")]
-    [SerializeField] private Vector2 clawBaseMaxPos; //max and min positions to move on XZ axis
+    [SerializeField] private Vector2 clawBaseMaxPos;
     [SerializeField] private Vector2 clawBaseMinPos;
-
-    [SerializeField] private Vector2 clawArmExtendMinMax; //x is min scale, y is max scale
-
-    [SerializeField] private Vector2 clawLeaf1RotMinMax; //x in min, y is max rotation on axis
+    [SerializeField] private Vector2 clawArmExtendMinMax;
+    [SerializeField] private Vector2 clawLeaf1RotMinMax;
     [SerializeField] private Vector2 clawLeaf2RotMinMax;
 
     [Header("Claw Grab Settings")]
     [SerializeField] private LayerMask prizeMask;
-    private Prize grabbedPrize;
-    private float grabRadius = 0.2f;
 
-    //track current transfomrations to be able to clamp
+    private Prize grabbedPrize;
+
     private Vector2 currentBasePos;
     private float currentArmPos;
     private float currentBodyRot;
     private float currentLeaf1Rot;
     private float currentLeaf2Rot;
 
-    //position for claw to return to after finishing claw drop process
     private Vector2 startingPos;
-    private Vector2 dropPos; //get x and z from drop pos area transform
+    private Vector2 dropPos;
 
-    //track original rotations for rotation calculation
     private Quaternion bodyOriginalRot;
     private Quaternion leaf1OriginalRot;
     private Quaternion leaf2OriginalRot;
 
-    public Vector2 CurrentClawMoveDir { get; private set; } //current move vector
-    public BodyRotation CurrentBodyRotDir { get; private set; } //current direction to rotate in
+    private bool leftLeafHitPrize = false;
+    private bool rightLeafHitPrize = false;
+
+    public Vector2 CurrentClawMoveDir { get; private set; }
+    public BodyRotation CurrentBodyRotDir { get; private set; }
 
     public bool IsClawDropping => clawDropProcess != null;
     private Coroutine clawDropProcess = null;
 
+    private PrizeDetector leftDetector;
+    private PrizeDetector rightDetector;
+
     public Action OnStartDrop;
     public Action OnEndDrop;
 
-
-    private void Awake()
-    {
-        Instance = this;
-    }
+    private void Awake() => Instance = this;
 
     private void Start()
     {
@@ -91,36 +88,28 @@ public class ClawController : MonoBehaviour
 
         startingPos = currentBasePos;
         dropPos = new Vector2(clawDropLocation.position.x, clawDropLocation.position.z);
+
+        // Get PrizeDetector components from anchors
+        leftDetector = grabAnchorLeft.GetComponent<PrizeDetector>();
+        rightDetector = grabAnchorRight.GetComponent<PrizeDetector>();
     }
 
-    //move claw based on current vector
     private void Update()
     {
-        if (CurrentClawMoveDir != Vector2.zero)
-        {
-            MoveClawBase(CurrentClawMoveDir);
-        }
-
-        if (CurrentBodyRotDir != BodyRotation.None)
-        {
-            RotateClawBody(CurrentBodyRotDir);
-        }
+        if (CurrentClawMoveDir != Vector2.zero) MoveClawBase(CurrentClawMoveDir);
+        if (CurrentBodyRotDir != BodyRotation.None) RotateClawBody(CurrentBodyRotDir);
     }
+
     void LateUpdate()
     {
-        grabAnchor.position = clawLeaf3.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
+        prizeSpot.position = clawLeaf3.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
+        grabAnchorLeft.position = clawEndPt2.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
+        grabAnchorRight.position = clawEndPt1.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
     }
 
     #region ACTION
-    public void UpdateClawMoveDir(Vector2 dir)
-    {
-        CurrentClawMoveDir = dir;
-    }
-
-    public void UpdateBodyRotDir(BodyRotation dir)
-    {
-        CurrentBodyRotDir = dir;
-    }
+    public void UpdateClawMoveDir(Vector2 dir) => CurrentClawMoveDir = dir;
+    public void UpdateBodyRotDir(BodyRotation dir) => CurrentBodyRotDir = dir;
 
     public void StartDropProcess()
     {
@@ -129,216 +118,176 @@ public class ClawController : MonoBehaviour
             Debug.LogWarning("Already dropping claw");
             return;
         }
+        ResetClawFlags();
 
         OnStartDrop?.Invoke();
-        clawDropProcess = StartCoroutine(ClawDropPocess());
+        clawDropProcess = StartCoroutine(ClawDropProcess());
     }
     #endregion
 
-    #region HELPER
-    private IEnumerator ClawDropPocess()
+    #region DROP SEQUENCE
+    private IEnumerator ClawDropProcess()
     {
-        //while loops keep running transformation until bound is reached
-        while (OpenClaws()) //opne claws
-            yield return null;
+        while (OpenClaws()) yield return null;
 
-        while (LowerArm()) //lower arm
-            yield return null;
+        while (LowerArm()) yield return null;
 
-        while (CloseClaws()) //close claws
-            yield return null;
+        while (CloseClaws()) yield return null;
+
         CheckGrab();
 
-        while (RaiseArm()) //raise arm
-            yield return null;
+        while (RaiseArm()) yield return null;
 
-        yield return AutoMoveToPosition(dropPos); //move to drop hole
+        yield return AutoMoveToPosition(dropPos);
 
-        while (OpenClaws()) //opne claws
-            yield return null;
+        while (OpenClaws()) yield return null;
+
         if (grabbedPrize != null)
         {
             grabbedPrize.OnRelease();
             grabbedPrize = null;
         }
 
+        while (CloseClaws()) yield return null;
 
-        while (CloseClaws()) //close claws
-            yield return null;
 
-        yield return AutoMoveToPosition(startingPos); //move to starting pos
+        yield return AutoMoveToPosition(startingPos);
+        yield return AutoMoveToPosition(startingPos);
 
         clawDropProcess = null;
         OnEndDrop?.Invoke();
     }
-    
-    private bool OpenClaws() => RotateClawLeafs(LeafRotation.Open);
-
-    private bool CloseClaws() =>RotateClawLeafs(LeafRotation.Close);
-
-    private bool RaiseArm() => ExtendClawArm(ArmDirection.Up);
-
-    private bool LowerArm() => ExtendClawArm(ArmDirection.Down);
-
-    bool CheckGrab()
-    {
-        Vector3 grabPos = grabAnchor.position;
-        Collider[] hits = Physics.OverlapSphere(grabPos, grabRadius);
-
-        foreach (var hit in hits)
-        {
-            Prize p = hit.GetComponent<Prize>();
-            if (p != null)
-            {
-                grabbedPrize = p;
-                p.OnGrab(grabAnchor);
-                return true;
-            }
-        }
-        return false;
-    }
     #endregion
 
-    #region TRANSFORM OPERATION
+    #region CLAMPED TRANSFORMS
     private void MoveClawBase(Vector2 direction)
     {
-        direction *= clawMoveSpeed; //apply speed
-
-        float targetX = currentBasePos.x + direction.x * Time.deltaTime; //calculate value to add to current pos
-        float targetZ = currentBasePos.y + direction.y * Time.deltaTime;
-
-        if (targetX < clawBaseMinPos.x) //handle trying to move past bounds with clamp
-        {
-            targetX = clawBaseMinPos.x;
-        }
-        else if (targetX > clawBaseMaxPos.x)
-        {
-            targetX = clawBaseMaxPos.x;
-        }
-
-        if (targetZ < clawBaseMinPos.y)
-        {
-            targetZ = clawBaseMinPos.y;
-        }
-        else if (targetZ > clawBaseMaxPos.y)
-        {
-            targetZ = clawBaseMaxPos.y;
-        }
+        direction *= clawMoveSpeed;
+        float targetX = Mathf.Clamp(currentBasePos.x + direction.x * Time.deltaTime, clawBaseMinPos.x, clawBaseMaxPos.x);
+        float targetZ = Mathf.Clamp(currentBasePos.y + direction.y * Time.deltaTime, clawBaseMinPos.y, clawBaseMaxPos.y);
 
         NodeTransformer.TranslateNode(clawBase, targetX, Axis.X);
         NodeTransformer.TranslateNode(clawBase, targetZ, Axis.Z);
 
-        currentBasePos = new Vector2(targetX, targetZ); //update current position
+        currentBasePos = new Vector2(targetX, targetZ);
     }
 
-    private IEnumerator AutoMoveToPosition(Vector2 targetPos) //use for going to and returning from prize drop area
+    private IEnumerator AutoMoveToPosition(Vector2 targetPos)
     {
         Vector2 moveDir = (targetPos - currentBasePos).normalized;
-        while (Vector2.Distance(currentBasePos, targetPos) > 0.1f)
+        while (Vector2.Distance(currentBasePos, targetPos) > 0.05f)
         {
             MoveClawBase(moveDir);
             yield return null;
         }
     }
 
+    private bool leftArmBlocked = false;
+    private bool rightArmBlocked = false;
     private bool ExtendClawArm(ArmDirection direction)
     {
-        float directionValue =  direction == ArmDirection.Up ? 1 : -1;
+        float directionValue = direction == ArmDirection.Up ? 1 : -1;
         directionValue *= clawExtendSpeed;
 
         float targetY = currentArmPos + directionValue * Time.deltaTime;
 
-        if (targetY < clawArmExtendMinMax.x) //return false to indicate bound reached and clamp
+        if (direction == ArmDirection.Down)
         {
-            targetY = clawArmExtendMinMax.x;
-            NodeTransformer.TranslateNode(clawArm, targetY, Axis.Y);
-            return false;
+            if (leftDetector.IsTouchingPrize) leftArmBlocked = true;
+            if (rightDetector.IsTouchingPrize) rightArmBlocked = true;
         }
-        else if (targetY > clawArmExtendMinMax.y)
-        {
-            targetY = clawArmExtendMinMax.y;
-            NodeTransformer.TranslateNode(clawArm, targetY, Axis.Y);
-            return false;
-        }
+        targetY = Mathf.Clamp(targetY, clawArmExtendMinMax.x, clawArmExtendMinMax.y);
 
-        //bounds not reached yet
-        NodeTransformer.TranslateNode(clawArm, targetY, Axis.Y); 
-
+        NodeTransformer.TranslateNode(clawArm, targetY, Axis.Y);
         currentArmPos = targetY;
-        return true; 
+        return (!leftArmBlocked || !rightArmBlocked) && targetY != clawArmExtendMinMax.x && targetY != clawArmExtendMinMax.y;
     }
 
     private void RotateClawBody(BodyRotation direction)
     {
         float rotValue = direction == BodyRotation.Left ? -1 : 1;
-        rotValue *= clawRotateSpeed;
+        float targetRot = currentBodyRot + rotValue * clawRotateSpeed * Time.deltaTime;
 
-        float targetRot = currentBodyRot + rotValue * Time.deltaTime;
-       
         NodeTransformer.RotateNode(clawBody, targetRot, bodyOriginalRot, Axis.Y, RotationSpace.Local);
-
         currentBodyRot = targetRot;
     }
 
-    private bool RotateClawLeafs(LeafRotation direction)
-    {
-        return (RotateClawLeaf1(direction, clawOpenSpeed) && RotateClawLeaf2(direction, clawOpenSpeed));
-    }
+    private bool RotateClawLeafs(LeafRotation direction) =>
+        RotateClawLeaf1(direction) && RotateClawLeaf2(direction);
 
-    private bool RotateClawLeaf1(LeafRotation direction, float speed)
+    private bool RotateClawLeaf1(LeafRotation direction)
     {
+        if (direction == LeafRotation.Close && leftDetector.IsTouchingPrize)
+        {
+            leftLeafHitPrize = true;
+            return false;
+        }
+
         float rotValue = direction == LeafRotation.Open ? 1 : -1;
-        rotValue *= speed;
-
-        float targetRot = currentLeaf1Rot + rotValue * Time.deltaTime;
-
-        if (targetRot < clawLeaf1RotMinMax.x) //reached max or min bound
-        {
-            targetRot = clawLeaf1RotMinMax.x;
-            NodeTransformer.RotateNode(clawLeaf1, targetRot, leaf1OriginalRot, Axis.Z, RotationSpace.Local);
-            currentLeaf1Rot = targetRot;
-            return false;
-        }
-        else if (targetRot > clawLeaf1RotMinMax.y)
-        {
-            targetRot = clawLeaf1RotMinMax.y;
-            NodeTransformer.RotateNode(clawLeaf1, targetRot, leaf1OriginalRot, Axis.Z, RotationSpace.Local);
-            currentLeaf1Rot = targetRot;
-            return false;
-        }
+        float targetRot = Mathf.Clamp(currentLeaf1Rot + rotValue * clawOpenSpeed * Time.deltaTime, clawLeaf1RotMinMax.x, clawLeaf1RotMinMax.y);
 
         NodeTransformer.RotateNode(clawLeaf1, targetRot, leaf1OriginalRot, Axis.Z, RotationSpace.Local);
-
         currentLeaf1Rot = targetRot;
-        return true;
+        return targetRot != clawLeaf1RotMinMax.x && targetRot != clawLeaf1RotMinMax.y;
     }
 
-    private bool RotateClawLeaf2(LeafRotation direction, float speed)
+    private bool RotateClawLeaf2(LeafRotation direction)
     {
+        if (direction == LeafRotation.Close && rightDetector.IsTouchingPrize)
+        {
+            rightLeafHitPrize = true;
+            return false;
+        }
+
         float rotValue = direction == LeafRotation.Open ? -1 : 1;
-        rotValue *= speed;
-
-        float targetRot = currentLeaf2Rot + rotValue * Time.deltaTime;
-
-        if (targetRot < clawLeaf2RotMinMax.x) //reached max or min bound
-        {
-            targetRot = clawLeaf2RotMinMax.x;
-            NodeTransformer.RotateNode(clawLeaf2, targetRot, leaf2OriginalRot, Axis.Z, RotationSpace.Local);
-            currentLeaf2Rot = targetRot;
-            return false;
-        }
-        else if (targetRot > clawLeaf2RotMinMax.y)
-        {
-            targetRot = clawLeaf2RotMinMax.y;
-            NodeTransformer.RotateNode(clawLeaf2, targetRot, leaf2OriginalRot, Axis.Z, RotationSpace.Local);
-            currentLeaf2Rot = targetRot;
-            return false;
-        }
+        float targetRot = Mathf.Clamp(currentLeaf2Rot + rotValue * clawOpenSpeed * Time.deltaTime, clawLeaf2RotMinMax.x, clawLeaf2RotMinMax.y);
 
         NodeTransformer.RotateNode(clawLeaf2, targetRot, leaf2OriginalRot, Axis.Z, RotationSpace.Local);
-
         currentLeaf2Rot = targetRot;
-        return true;
+        return targetRot != clawLeaf2RotMinMax.x && targetRot != clawLeaf2RotMinMax.y;
     }
+
+    private bool OpenClaws() => RotateClawLeafs(LeafRotation.Open);
+    private bool CloseClaws()
+    {
+        bool leaf1Moving = RotateClawLeaf1(LeafRotation.Close);
+        bool leaf2Moving = RotateClawLeaf2(LeafRotation.Close);
+        return leaf1Moving || leaf2Moving;
+    }
+
+    private bool RaiseArm() => ExtendClawArm(ArmDirection.Up);
+    private bool LowerArm() => ExtendClawArm(ArmDirection.Down);
     #endregion
+
+    private void CheckGrab()
+    {
+        if (!leftLeafHitPrize || !rightLeafHitPrize)
+        {
+            return;
+        }
+
+        Prize leftPrize = leftDetector.CurrentPrize;
+        Prize rightPrize = rightDetector.CurrentPrize;
+
+        if (leftPrize == null || rightPrize == null)
+        {
+            return;
+        }
+
+        if (leftPrize != rightPrize)
+        {
+            return;
+        }
+
+        grabbedPrize = leftPrize;
+        grabbedPrize.OnGrab(prizeSpot);
+    }
+
+    private void ResetClawFlags()
+    {
+        leftArmBlocked = false;
+        rightArmBlocked = false;
+        leftLeafHitPrize = false;
+        rightLeafHitPrize = false;
+    }
 }
