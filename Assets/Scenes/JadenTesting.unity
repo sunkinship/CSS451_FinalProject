@@ -272,7 +272,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _DiffuseStrength: 1
     m_Colors: []
   m_BuildTextureStacks: []
 --- !u!1 &22711018
@@ -1726,7 +1727,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _DiffuseStrength: 1
     m_Colors: []
   m_BuildTextureStacks: []
 --- !u!1 &222171640
@@ -3404,7 +3406,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _DiffuseStrength: 1
     m_Colors: []
   m_BuildTextureStacks: []
 --- !u!1 &653079726
@@ -4253,7 +4256,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _DiffuseStrength: 1
     m_Colors: []
   m_BuildTextureStacks: []
 --- !u!1 &879164134
@@ -4872,7 +4876,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _DiffuseStrength: 1
     m_Colors: []
   m_BuildTextureStacks: []
 --- !u!1 &1055292389
@@ -5395,6 +5400,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AllowClawControl: 1
+  scoreText: {fileID: 0}
+  winPanel: {fileID: 0}
 --- !u!4 &1119754795
 Transform:
   m_ObjectHideFlags: 0
@@ -6276,7 +6283,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _DiffuseStrength: 1
     m_Colors: []
   m_BuildTextureStacks: []
 --- !u!1 &1408339894
@@ -7510,6 +7518,7 @@ MonoBehaviour:
   leftView: {fileID: 490263296}
   rightView: {fileID: 1002628036}
   frontView: {fileID: 1057854635}
+  clawCam: {fileID: 0}
 --- !u!1 &1595457207
 GameObject:
   m_ObjectHideFlags: 0
@@ -9821,7 +9830,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _DiffuseStrength: 1
     m_Colors: []
   m_BuildTextureStacks: []
 --- !u!1 &2070467868
@@ -10189,8 +10199,8 @@ MonoBehaviour:
   clawLeaf1: {fileID: 1664252759}
   clawLeaf2: {fileID: 1193152837}
   clawLeaf3: {fileID: 458770720}
-  clawEndPt1: {fileID: 1856159927}
-  clawEndPt2: {fileID: 1303129703}
+  clawEndPt1: {fileID: 1303129703}
+  clawEndPt2: {fileID: 1856159927}
   grabAnchorLeft: {fileID: 848465645}
   grabAnchorRight: {fileID: 1881059218}
   prizeSpot: {fileID: 904105562}

@@ -103,8 +103,8 @@ public class ClawController : MonoBehaviour
     void LateUpdate()
     {
         prizeSpot.position = clawLeaf3.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
-        grabAnchorLeft.position = clawEndPt2.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
-        grabAnchorRight.position = clawEndPt1.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
+        grabAnchorLeft.position = clawEndPt1.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
+        grabAnchorRight.position = clawEndPt2.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
     }
 
     #region ACTION
@@ -211,7 +211,7 @@ public class ClawController : MonoBehaviour
         NodeTransformer.RotateNode(clawBody, targetRot, bodyOriginalRot, Axis.Y, RotationSpace.Local);
         currentBodyRot = targetRot;
     }
-
+        
     private bool RotateClawLeafs(LeafRotation direction) =>
         RotateClawLeaf1(direction) && RotateClawLeaf2(direction);
 
