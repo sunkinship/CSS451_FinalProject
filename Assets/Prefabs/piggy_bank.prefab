@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5969547955343938298
+--- !u!1 &3452074333040208925
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,49 +8,49 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8854892468094607409}
-  - component: {fileID: 5153344294220048860}
-  - component: {fileID: 1433516293188938524}
-  - component: {fileID: 6807553519070019713}
-  - component: {fileID: 4038349369840045901}
-  - component: {fileID: 3551976262854719338}
+  - component: {fileID: 3447218062735076429}
+  - component: {fileID: 3638607449662195300}
+  - component: {fileID: 1886707840259799492}
+  - component: {fileID: 1219158544852115939}
+  - component: {fileID: 6592989876420639982}
+  - component: {fileID: 2192809801426509883}
   m_Layer: 6
-  m_Name: soccer_boot
+  m_Name: piggy_bank
   m_TagString: Prize
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8854892468094607409
+--- !u!4 &3447218062735076429
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5969547955343938298}
+  m_GameObject: {fileID: 3452074333040208925}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4990097420111396475}
+  m_Father: {fileID: 760208673069611208}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &5153344294220048860
+--- !u!33 &3638607449662195300
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5969547955343938298}
-  m_Mesh: {fileID: 4168252985588449313, guid: 70e63b5e68d393c428b8c1d9546b8a1a, type: 3}
---- !u!23 &1433516293188938524
+  m_GameObject: {fileID: 3452074333040208925}
+  m_Mesh: {fileID: -8232519703238884331, guid: 54935c7d251f53845903edc7fb6c995c, type: 3}
+--- !u!23 &1886707840259799492
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5969547955343938298}
+  m_GameObject: {fileID: 3452074333040208925}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -86,13 +86,13 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!54 &6807553519070019713
+--- !u!54 &1219158544852115939
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5969547955343938298}
+  m_GameObject: {fileID: 3452074333040208925}
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0.1
@@ -113,13 +113,13 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!64 &4038349369840045901
+--- !u!64 &6592989876420639982
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5969547955343938298}
+  m_GameObject: {fileID: 3452074333040208925}
   m_Material: {fileID: 13400000, guid: 37f21d359d99e734fbe9fe66454222ae, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -134,14 +134,14 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: -2484543328858565534, guid: aca822d4a30fd9c4fa1b6d65992239d4, type: 3}
---- !u!114 &3551976262854719338
+  m_Mesh: {fileID: 9034588335222839745, guid: 318744ea0461559429d2076415c3930b, type: 3}
+--- !u!114 &2192809801426509883
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5969547955343938298}
+  m_GameObject: {fileID: 3452074333040208925}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 036aa248b698514478bba8029fb0ef3a, type: 3}
@@ -149,8 +149,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scoreValue: 1
   IsGrabbed: 0
-  rb: {fileID: 6807553519070019713}
---- !u!1 &6099014536301349831
+  rb: {fileID: 1219158544852115939}
+--- !u!1 &4249394010358067799
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -158,36 +158,36 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4990097420111396475}
-  - component: {fileID: 5507545366260048045}
+  - component: {fileID: 760208673069611208}
+  - component: {fileID: 6121393414528703523}
   m_Layer: 6
-  m_Name: soccer_boot
+  m_Name: piggy_bank
   m_TagString: Prize
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4990097420111396475
+--- !u!4 &760208673069611208
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6099014536301349831}
+  m_GameObject: {fileID: 4249394010358067799}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 3.5, y: 3.5, z: 3.5}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8854892468094607409}
+  - {fileID: 3447218062735076429}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &5507545366260048045
+--- !u!33 &6121393414528703523
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6099014536301349831}
-  m_Mesh: {fileID: 4168252985588449313, guid: 70e63b5e68d393c428b8c1d9546b8a1a, type: 3}
+  m_GameObject: {fileID: 4249394010358067799}
+  m_Mesh: {fileID: -8232519703238884331, guid: 54935c7d251f53845903edc7fb6c995c, type: 3}

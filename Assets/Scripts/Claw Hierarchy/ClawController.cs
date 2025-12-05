@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public enum BodyRotation { None, Left, Right }
@@ -9,6 +10,10 @@ public enum LeafRotation { Open, Close }
 public class ClawController : MonoBehaviour
 {
     public static ClawController Instance;
+
+    private const string PRIZE_MASK = "prizeMask";
+
+    [SerializeField] private Transform clawDropLocation;
 
     [Header("Claw Nodes")]
     [SerializeField] private SceneNode clawBase;
@@ -22,8 +27,14 @@ public class ClawController : MonoBehaviour
     [SerializeField] private Transform grabAnchorLeft;
     [SerializeField] private Transform grabAnchorRight;
     [SerializeField] private Transform prizeSpot;
-    [SerializeField] private Transform clawDropLocation;
 
+    [Header("Collision")]
+    [SerializeField] private SceneNode claw1SecondPart; //used for check in pushing objects away
+    [SerializeField] private SceneNode claw2SecondPart;
+    [SerializeField] private CapsuleCollider leftClawCol;
+    [SerializeField] private CapsuleCollider rightClawCol;
+    [SerializeField] private float pushStrength;
+    
     [Header("Claw Settings")]
     [SerializeField] private float clawMoveSpeed = 1f;
     [SerializeField] private float clawExtendSpeed = 1f;
@@ -36,9 +47,6 @@ public class ClawController : MonoBehaviour
     [SerializeField] private Vector2 clawArmExtendMinMax;
     [SerializeField] private Vector2 clawLeaf1RotMinMax;
     [SerializeField] private Vector2 clawLeaf2RotMinMax;
-
-    [Header("Claw Grab Settings")]
-    [SerializeField] private LayerMask prizeMask;
 
     private Prize grabbedPrize;
 
@@ -69,7 +77,6 @@ public class ClawController : MonoBehaviour
 
     private PrizeDetector leftDetector;
     private PrizeDetector rightDetector;
-
 
     public Action OnStartDrop;
     public Action OnEndDrop;
@@ -109,6 +116,9 @@ public class ClawController : MonoBehaviour
         prizeSpot.position = clawLeaf3.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
         grabAnchorLeft.position = clawEndPt1.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
         grabAnchorRight.position = clawEndPt2.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
+
+        leftClawCol.transform.position = claw1SecondPart.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
+        rightClawCol.transform.position = claw2SecondPart.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero);
     }
 
     #region ACTION
@@ -134,31 +144,43 @@ public class ClawController : MonoBehaviour
     {
         while (OpenClaws()) yield return null;
 
-        while (LowerArm()) yield return null;
-
-        while (CloseClaws()) yield return null;
+        while (LowerArm())
+        {
+            CheckBlockingObjects();
+            yield return null;
+        }
+        while (CloseClaws())
+        {
+            CheckBlockingObjects();
+            yield return null;
+        }
 
         CheckGrab();
         hasRolledDropChance = true;
-        prizeShouldDrop = (UnityEngine.Random.Range(0, 3) == 0);
-
+        //prizeShouldDrop = (UnityEngine.Random.Range(0, 3) == 0);
+        
         while (RaiseArm()) yield return null;
 
-        yield return AutoMoveToPosition(dropPos);
+        if (isCarryingPrize == false)
+        {
+            while (CloseClaws()) yield return null;
+            clawDropProcess = null;
+            OnEndDrop?.Invoke();
+            yield break;
+        }
 
-        while (OpenClaws()) yield return null;
+        yield return AutoMoveToPosition(dropPos);
 
         if (grabbedPrize != null)
         {
             grabbedPrize.OnRelease();
             grabbedPrize = null;
         }
+        ResetClawFlags();
+        while (OpenClaws()) yield return null;
 
+        yield return AutoMoveToPosition(startingPos);
         while (CloseClaws()) yield return null;
-
-
-        yield return AutoMoveToPosition(startingPos);
-        yield return AutoMoveToPosition(startingPos);
 
         clawDropProcess = null;
         OnEndDrop?.Invoke();
@@ -189,8 +211,6 @@ public class ClawController : MonoBehaviour
         }
     }
 
-    private bool leftArmBlocked = false;
-    private bool rightArmBlocked = false;
     private bool ExtendClawArm(ArmDirection direction)
     {
         float directionValue = direction == ArmDirection.Up ? 1 : -1;
@@ -198,16 +218,11 @@ public class ClawController : MonoBehaviour
 
         float targetY = currentArmPos + directionValue * Time.deltaTime;
 
-        if (direction == ArmDirection.Down)
-        {
-            if (leftDetector.IsTouchingPrize) leftArmBlocked = true;
-            if (rightDetector.IsTouchingPrize) rightArmBlocked = true;
-        }
         targetY = Mathf.Clamp(targetY, clawArmExtendMinMax.x, clawArmExtendMinMax.y);
 
         NodeTransformer.TranslateNode(clawArm, targetY, Axis.Y);
         currentArmPos = targetY;
-        return (!leftArmBlocked || !rightArmBlocked) && targetY != clawArmExtendMinMax.x && targetY != clawArmExtendMinMax.y;
+        return targetY != clawArmExtendMinMax.x && targetY != clawArmExtendMinMax.y;
     }
 
     private void RotateClawBody(BodyRotation direction)
@@ -266,6 +281,7 @@ public class ClawController : MonoBehaviour
     private bool LowerArm() => ExtendClawArm(ArmDirection.Down);
     #endregion
 
+    #region PRIZE
     private void CheckGrab()
     {
         if (!leftLeafHitPrize || !rightLeafHitPrize)
@@ -290,7 +306,8 @@ public class ClawController : MonoBehaviour
         grabbedPrize.OnGrab(prizeSpot);
         isCarryingPrize = true;
     }
-    void DropPrize()
+
+    private void DropPrize()
     {
         if (grabbedPrize != null)
         {
@@ -307,11 +324,86 @@ public class ClawController : MonoBehaviour
             hasRolledDropChance = false;
         }
     }
+    #endregion
+
+    #region COLLISION
+    private void CheckBlockingObjects()
+    {
+        PushBlockingObjects(leftClawCol, claw1SecondPart.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero));
+        PushBlockingObjects(rightClawCol, claw2SecondPart.LatestWorldMatrix.MultiplyPoint3x4(Vector3.zero));
+    }
+
+    private void PushBlockingObjects(CapsuleCollider collider, Vector3 targetPos) //push objects blocking claw away
+    {
+        Collider[] hits = OverlapCapsuleFromCollider(collider);
+
+        foreach (Collider hit in hits)
+        {
+            Collider clawCol = collider;
+
+            if (Physics.ComputePenetration(clawCol, targetPos, transform.rotation,
+                    hit, hit.transform.position, hit.transform.rotation,
+                    out Vector3 dir, out float distance))
+            {
+                Vector3 pushVector = dir * distance;
+
+                Rigidbody rb = hit.attachedRigidbody;
+                pushVector *= 0.95f;
+
+                if (rb)
+                {
+                    rb.AddForce(pushVector * 5, ForceMode.VelocityChange);
+                }
+            }
+        }
+    }
+
+    public static Collider[] OverlapCapsuleFromCollider(CapsuleCollider collider) //check for col overlap
+    {
+        Transform t = collider.transform;
+
+        float radius = collider.radius * Mathf.Max(
+            Mathf.Abs(t.lossyScale.x),
+            Mathf.Abs(t.lossyScale.y),
+            Mathf.Abs(t.lossyScale.z)
+        );
+
+        float height = collider.height * Mathf.Abs(t.lossyScale.y);
+
+        int direction = collider.direction;
+
+        Vector3 center = t.TransformPoint(collider.center);
+
+        float halfHeight = Mathf.Max(height * 0.5f - radius, 0f);
+
+        Vector3 dir;
+        switch (direction)
+        {
+            case 0:
+                dir = t.right;
+                break;
+            case 1:
+                dir = t.up;
+                break;
+            default:
+                dir = t.forward;
+                break;
+        }
+
+        Vector3 point1 = center + dir * halfHeight;
+        Vector3 point2 = center - dir * halfHeight;
+
+        Collider[] results = Physics.OverlapCapsule(point1, point2, radius, 1 << LayerMask.NameToLayer(PRIZE_MASK));
+
+        return results;
+    }
+    #endregion
 
     private void ResetClawFlags()
     {
-        leftArmBlocked = false;
-        rightArmBlocked = false;
+        CurrentClawMoveDir = Vector2.zero;
+        CurrentBodyRotDir = BodyRotation.None;
+
         leftLeafHitPrize = false;
         rightLeafHitPrize = false;
     }
