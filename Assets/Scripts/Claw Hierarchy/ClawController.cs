@@ -57,6 +57,9 @@ public class ClawController : MonoBehaviour
 
     private bool leftLeafHitPrize = false;
     private bool rightLeafHitPrize = false;
+    private bool hasRolledDropChance = false;
+    private bool prizeShouldDrop = false;
+    public bool isCarryingPrize = false;
 
     public Vector2 CurrentClawMoveDir { get; private set; }
     public BodyRotation CurrentBodyRotDir { get; private set; }
@@ -66,6 +69,7 @@ public class ClawController : MonoBehaviour
 
     private PrizeDetector leftDetector;
     private PrizeDetector rightDetector;
+
 
     public Action OnStartDrop;
     public Action OnEndDrop;
@@ -135,6 +139,8 @@ public class ClawController : MonoBehaviour
         while (CloseClaws()) yield return null;
 
         CheckGrab();
+        hasRolledDropChance = true;
+        prizeShouldDrop = (UnityEngine.Random.Range(0, 3) == 0);
 
         while (RaiseArm()) yield return null;
 
@@ -174,6 +180,7 @@ public class ClawController : MonoBehaviour
 
     private IEnumerator AutoMoveToPosition(Vector2 targetPos)
     {
+        if (isCarryingPrize && prizeShouldDrop) DropPrize();
         Vector2 moveDir = (targetPos - currentBasePos).normalized;
         while (Vector2.Distance(currentBasePos, targetPos) > 0.05f)
         {
@@ -281,6 +288,25 @@ public class ClawController : MonoBehaviour
 
         grabbedPrize = leftPrize;
         grabbedPrize.OnGrab(prizeSpot);
+        isCarryingPrize = true;
+    }
+    void DropPrize()
+    {
+        if (grabbedPrize != null)
+        {
+            grabbedPrize.transform.SetParent(null);
+            Rigidbody rb = grabbedPrize.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.useGravity = true;
+                rb.isKinematic = false;
+            }
+
+            // Clear the flags so it doesn't try twice
+            isCarryingPrize = false;
+            prizeShouldDrop = false;
+            hasRolledDropChance = false;
+        }
     }
 
     private void ResetClawFlags()
