@@ -302,7 +302,6 @@ public class ClawController : MonoBehaviour
                 rb.isKinematic = false;
             }
 
-            // Clear the flags so it doesn't try twice
             isCarryingPrize = false;
             prizeShouldDrop = false;
             hasRolledDropChance = false;

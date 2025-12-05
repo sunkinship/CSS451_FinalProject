@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Unlit_451Shader
+  m_Name: claw_joint_mat
   m_Shader: {fileID: 4800000, guid: cc8abf006c7b38e4aa92d960040df365, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -30,5 +30,6 @@ Material:
     m_Ints: []
     m_Floats:
     - _DiffuseStrength: 1
-    m_Colors: []
+    m_Colors:
+    - _Color: {r: 1, g: 0, b: 0.89359426, a: 1}
   m_BuildTextureStacks: []

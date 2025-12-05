@@ -26,11 +26,9 @@ public class PrizeSpawner : MonoBehaviour
         Vector3 min = boxMin.position;
         Vector3 max = boxMax.position;
 
-        // compute usable spawn region
         float xSpacing = (max.x - min.x) / (columns - 1);
         float zSpacing = (max.z - min.z) / (rows - 1);
 
-        // loop grid
         for (int r = 0; r < rows; r++)
         {
             
@@ -42,7 +40,7 @@ public class PrizeSpawner : MonoBehaviour
                 }
                 Vector3 spawnPos = new Vector3(
                     min.x + xSpacing * c,
-                    min.y,                      // floor level
+                    min.y,             
                     min.z + zSpacing * r
                 );
 

@@ -2,6 +2,7 @@ Shader "Unlit/451Shader"
 {
 	Properties
 	{
+		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Texture", 2D) = "white" {}
 		_DiffuseStrength ("Diffuse Strength", float) = 1
 	}
@@ -35,7 +36,7 @@ Shader "Unlit/451Shader"
 
             // our own matrix
             float4x4 MyXformMat;  // our own transform matrix!!
-            fixed4   MyColor;
+            fixed4   _Color;
 
 			float4	LightPosition; //diffuse light
 			float	_DiffuseStrength;
@@ -77,7 +78,7 @@ Shader "Unlit/451Shader"
 			{
 				// sample the texture
 				fixed4 col = tex2D(_MainTex, i.uv);
-				col += MyColor;
+				col *= _Color;
 
 				float diff = ComputeDiffuse(i);
 
