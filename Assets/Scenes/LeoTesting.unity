@@ -275,126 +275,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1944532954}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &39718582
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 39718587}
-  - component: {fileID: 39718586}
-  - component: {fileID: 39718585}
-  - component: {fileID: 39718584}
-  - component: {fileID: 39718583}
-  m_Layer: 0
-  m_Name: Sphere
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &39718583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 39718582}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39113a5f972b34543a6246f1585a63fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MyColor: {r: 0.1, g: 0.1, b: 0.2, a: 1}
-  Pivot: {x: 0, y: 0, z: 0}
---- !u!135 &39718584
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 39718582}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!23 &39718585
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 39718582}
-  m_Enabled: 0
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: aa0b94ab1486198458ac98a90295cd90, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &39718586
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 39718582}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &39718587
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 39718582}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 458770721}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &48725936
 GameObject:
   m_ObjectHideFlags: 0
@@ -727,7 +607,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.30070576, w: 0.953717}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.20000002, y: 0.67, z: 0.2}
+  m_LocalScale: {x: 0.25, y: 0.67, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 669975612}
@@ -2845,7 +2725,7 @@ GameObject:
   - component: {fileID: 458770721}
   - component: {fileID: 458770720}
   m_Layer: 0
-  m_Name: GrabPointScene
+  m_Name: Prize Spot Node
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2864,8 +2744,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NodeOrigin: {x: 0, y: 0, z: 0}
-  PrimitiveList:
-  - {fileID: 39718583}
+  PrimitiveList: []
   ChildrenList: []
 --- !u!4 &458770721
 Transform:
@@ -2880,7 +2759,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 39718587}
+  - {fileID: 904105562}
   m_Father: {fileID: 1687151434}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &459550869
@@ -4417,7 +4296,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.29237175, w: 0.9563048}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.20000002, y: 0.67, z: 0.2}
+  m_LocalScale: {x: 0.25, y: 0.67, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1710250244}
@@ -5233,8 +5112,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 904105562}
+  - component: {fileID: 904105563}
   m_Layer: 0
-  m_Name: GrabPoint
+  m_Name: Prize Spot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5248,13 +5128,34 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 904105561}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1687151434}
+  m_Father: {fileID: 458770721}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &904105563
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904105561}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.8
+  m_Center: {x: 0, y: 0.27, z: 0}
 --- !u!1 &914247921
 GameObject:
   m_ObjectHideFlags: 0
@@ -9840,7 +9741,6 @@ Transform:
   - {fileID: 524625520}
   - {fileID: 1664252758}
   - {fileID: 1193152838}
-  - {fileID: 904105562}
   - {fileID: 458770721}
   m_Father: {fileID: 295838505}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -12435,7 +12335,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 0.18
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2094215168
 GameObject:
@@ -12592,12 +12492,12 @@ MonoBehaviour:
   clawExtendSpeed: 1.5
   clawRotateSpeed: 100
   clawOpenSpeed: 30
-  clawBaseMaxPos: {x: 4.5, y: 4.5}
+  clawBaseMaxPos: {x: 4.5, y: 4.6}
   clawBaseMinPos: {x: -4.5, y: -4.5}
   clawArmExtendMinMax: {x: -2.43, y: -0.28}
   clawLeaf1RotMinMax: {x: 0, y: 22}
   clawLeaf2RotMinMax: {x: -22, y: 0}
-  isCarryingPrize: 0
+  dropChanceCheckInterval: 1.6
 --- !u!4 &2121077736
 Transform:
   m_ObjectHideFlags: 0
@@ -12677,7 +12577,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 0.18
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

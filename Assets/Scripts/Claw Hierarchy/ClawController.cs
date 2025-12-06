@@ -48,7 +48,12 @@ public class ClawController : MonoBehaviour
     [SerializeField] private Vector2 clawLeaf1RotMinMax;
     [SerializeField] private Vector2 clawLeaf2RotMinMax;
 
-    private Prize grabbedPrize;
+    [Header("Drop Chance")]
+    [SerializeField] private float dropChanceCheckInterval = 1f;
+
+    private GrabbedPrizes grabbedPrizes;
+
+    private Collider prizeSpotCol; //used to calculate how much of the prize is grabbed
 
     private Vector2 currentBasePos;
     private float currentArmPos;
@@ -65,9 +70,7 @@ public class ClawController : MonoBehaviour
 
     private bool leftLeafHitPrize = false;
     private bool rightLeafHitPrize = false;
-    private bool hasRolledDropChance = false;
-    private bool prizeShouldDrop = false;
-    public bool isCarryingPrize = false;
+    public bool isCarryingPrize => grabbedPrizes.IsCarryingPrize;
 
     public Vector2 CurrentClawMoveDir { get; private set; }
     public BodyRotation CurrentBodyRotDir { get; private set; }
@@ -103,6 +106,9 @@ public class ClawController : MonoBehaviour
         // Get PrizeDetector components from anchors
         leftDetector = grabAnchorLeft.GetComponent<PrizeDetector>();
         rightDetector = grabAnchorRight.GetComponent<PrizeDetector>();
+
+        prizeSpotCol = prizeSpot.GetComponent<Collider>();
+        grabbedPrizes = new(prizeSpot, prizeSpotCol);
     }
 
     private void Update()
@@ -156,36 +162,55 @@ public class ClawController : MonoBehaviour
         }
 
         CheckGrab();
-        hasRolledDropChance = true;
-        //prizeShouldDrop = (UnityEngine.Random.Range(0, 3) == 0);
-        
+
+        StartCoroutine(CheckDropChanceOnInterval());
+
         while (RaiseArm()) yield return null;
 
-        if (isCarryingPrize == false)
+        if (isCarryingPrize == false) //if not prize grabbed exit process
         {
+            yield return new WaitForSeconds(0.5f);
             while (CloseClaws()) yield return null;
             clawDropProcess = null;
             OnEndDrop?.Invoke();
             yield break;
         }
 
-        yield return AutoMoveToPosition(dropPos);
+        yield return AutoMoveToTargetPos(dropPos);
 
-        if (grabbedPrize != null)
+        if (grabbedPrizes.IsCarryingPrize) //reached drop area so drop prize
         {
-            grabbedPrize.OnRelease();
-            grabbedPrize = null;
+            grabbedPrizes.DropPrizes();
         }
         ResetClawFlags();
         while (OpenClaws()) yield return null;
-
-        yield return AutoMoveToPosition(startingPos);
+        yield return new WaitForSeconds(0.5f);
+        yield return AutoMoveToTargetPos(startingPos);
         while (CloseClaws()) yield return null;
 
         clawDropProcess = null;
         OnEndDrop?.Invoke();
     }
     #endregion
+
+    private IEnumerator CheckDropChanceOnInterval()
+    {
+        if (isCarryingPrize == false)
+            yield break;
+
+        yield return new WaitForSeconds(1f); //wait a second before starting check
+
+        float nextDropCheckTime = Time.time;
+        while (clawDropProcess != null)
+        {
+            if (nextDropCheckTime < Time.time) //run chance to drop every interval
+            {
+                nextDropCheckTime = Time.time + dropChanceCheckInterval;
+                grabbedPrizes.TryDropChance();
+            }
+            yield return null;
+        }
+    }
 
     #region CLAMPED TRANSFORMS
     private void MoveClawBase(Vector2 direction)
@@ -200,9 +225,8 @@ public class ClawController : MonoBehaviour
         currentBasePos = new Vector2(targetX, targetZ);
     }
 
-    private IEnumerator AutoMoveToPosition(Vector2 targetPos)
+    private IEnumerator AutoMoveToTargetPos(Vector2 targetPos)
     {
-        if (isCarryingPrize && prizeShouldDrop) DropPrize();
         Vector2 moveDir = (targetPos - currentBasePos).normalized;
         while (Vector2.Distance(currentBasePos, targetPos) > 0.05f)
         {
@@ -234,8 +258,7 @@ public class ClawController : MonoBehaviour
         currentBodyRot = targetRot;
     }
         
-    private bool RotateClawLeafs(LeafRotation direction) =>
-        RotateClawLeaf1(direction) && RotateClawLeaf2(direction);
+    private bool RotateClawLeafs(LeafRotation direction) => RotateClawLeaf1(direction) && RotateClawLeaf2(direction);
 
     private bool RotateClawLeaf1(LeafRotation direction)
     {
@@ -285,44 +308,15 @@ public class ClawController : MonoBehaviour
     private void CheckGrab()
     {
         if (!leftLeafHitPrize || !rightLeafHitPrize)
-        {
             return;
-        }
 
         Prize leftPrize = leftDetector.CurrentPrize;
         Prize rightPrize = rightDetector.CurrentPrize;
 
-        if (leftPrize == null || rightPrize == null)
-        {
-            return;
-        }
+        grabbedPrizes.AddPrize(rightPrize);
+        grabbedPrizes.AddPrize(leftPrize);
 
-        if (leftPrize != rightPrize)
-        {
-            return;
-        }
-
-        grabbedPrize = leftPrize;
-        grabbedPrize.OnGrab(prizeSpot);
-        isCarryingPrize = true;
-    }
-
-    private void DropPrize()
-    {
-        if (grabbedPrize != null)
-        {
-            grabbedPrize.transform.SetParent(null);
-            Rigidbody rb = grabbedPrize.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.useGravity = true;
-                rb.isKinematic = false;
-            }
-
-            isCarryingPrize = false;
-            prizeShouldDrop = false;
-            hasRolledDropChance = false;
-        }
+        grabbedPrizes.GrabPrizes();
     }
     #endregion
 
