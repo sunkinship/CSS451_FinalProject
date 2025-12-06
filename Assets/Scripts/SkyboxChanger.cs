@@ -1,18 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class SkyboxChanger : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public static SkyboxChanger Instance;
+
+    public Material[] skyboxes;
+
+    private void Awake()
     {
-        
+        Instance = this;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SetSkybox(int index)
     {
-        
+        if (skyboxes[index] == null)
+            return;
+
+        RenderSettings.skybox = skyboxes[index];
+        DynamicGI.UpdateEnvironment();
     }
 }
