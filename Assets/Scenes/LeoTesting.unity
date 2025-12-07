@@ -2965,7 +2965,6 @@ MonoBehaviour:
   - {fileID: 2100000, guid: d4454f71d85928744be7771e2143dab7, type: 2}
   - {fileID: 2100000, guid: 369b9ebe3a62b904dbc19bd332b44086, type: 2}
   - {fileID: 2100000, guid: 16bc8a9d5451ca44d8f70575adbece3a, type: 2}
-  - {fileID: 2100000, guid: 4e154bf235e41704bbd6bbc6fd6c63f6, type: 2}
   - {fileID: 2100000, guid: 119ec07f1c7ed204db46bd8465fd5a50, type: 2}
   - {fileID: 2100000, guid: 5d133deeaa66ed445853e946ff25e073, type: 2}
   skyboxUI: {fileID: 1995234774}
@@ -15165,8 +15164,6 @@ MonoBehaviour:
     - m_Text: Cosmos
       m_Image: {fileID: 0}
     - m_Text: Earth
-      m_Image: {fileID: 0}
-    - m_Text: Cloudy Sky
       m_Image: {fileID: 0}
     - m_Text: Ocean
       m_Image: {fileID: 0}

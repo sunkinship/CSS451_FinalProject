@@ -50,7 +50,7 @@ public class KeyboardInputHandler : MonoBehaviour
             mamager.OnClawDropPressed();
 
         //pause
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
             UIManager.Instance.OnPauseToggle();
     }
 }
