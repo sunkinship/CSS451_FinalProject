@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
@@ -7,15 +8,21 @@ public class UIManager : MonoBehaviour
 
     [HideInInspector] public bool AllowClawControl = true;
 
-    [Header("Score and Win UI")]
+    [Header("UI")]
     [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI attemptsText;
     [SerializeField] private GameObject winPanel;
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject cameraPanel;
+    [SerializeField] private GameObject pausePanel;
 
     private bool upPressed, downPressed, leftPressed, rightPressed;
     private Vector2 clawMoveDir = Vector2.zero;
 
     private bool leftRotPressed, rightRotPressed;
     private BodyRotation clawRotDor = BodyRotation.None;
+
+    public bool IsPaused { get; private set; } = false;
 
     private void Awake()
     {
@@ -27,6 +34,8 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        SetUIToMode();
+
         ClawController.Instance.OnStartDrop += DisableClawControl; //disable claw control during drop sequence
         ClawController.Instance.OnEndDrop += EnableClawControl;
     }
@@ -158,19 +167,70 @@ public class UIManager : MonoBehaviour
         scoreText.text = score.ToString();
     }
 
+    public void SetAttempts(int attempts)
+    {
+        attemptsText.text = attempts.ToString();
+    }
+
     public void ShowWinPanel()
     {
         winPanel.SetActive(true);
     }
 
+    public void ShowGameOverPanel()
+    {
+        gameOverPanel.SetActive(true);
+    }
+
     public void OnPlayAgainPressed()
     {
-        GameManager.Instance.ResetGame();
+        SceneManager.LoadScene(StaticManager.GAME_SCENE_INDEX);
     }
 
     public void OnQuitPressed()
     {
-        GameManager.Instance.QuitGame();
+        OnResumePressed();
+        SceneManager.LoadScene(StaticManager.MENU_SCENE_INDEX);
+    }
+
+    public void SetUIToMode()
+    {
+        if (StaticManager.currentMode == Mode.FreePlay)
+        {
+            attemptsText.transform.parent.gameObject.SetActive(false);
+            cameraPanel.SetActive(true);
+        } 
+        else if (StaticManager.currentMode == Mode.Challenge)
+        {
+            attemptsText.transform.parent.gameObject.SetActive(true);
+            cameraPanel.SetActive(false);
+        }
+    }
+    #endregion
+
+    #region PAUSE
+    public void OnPauseToggle()
+    {
+        IsPaused = !IsPaused;
+
+        if (IsPaused)
+        {
+            if (winPanel.activeInHierarchy)
+                return;
+
+            IsPaused = true;
+            pausePanel.SetActive(true);
+            Time.timeScale = 0;
+        }
+        else
+            OnResumePressed();
+    }
+
+    public void OnResumePressed()
+    {
+        pausePanel.SetActive(false);
+        Time.timeScale = 1;
+        IsPaused = false;
     }
     #endregion
 }

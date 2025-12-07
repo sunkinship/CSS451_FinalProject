@@ -140,6 +140,9 @@ public class ClawController : MonoBehaviour
         }
         ResetClawFlags();
 
+        if (StaticManager.currentMode == Mode.Challenge)
+            GameManager.Instance.UseAttempt();
+
         OnStartDrop?.Invoke();
         clawDropProcess = StartCoroutine(ClawDropProcess());
     }

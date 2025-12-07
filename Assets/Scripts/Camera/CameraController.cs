@@ -11,7 +11,7 @@ public class CameraController : MonoBehaviour
     //control modes
     private enum ControlMode { None, Orbit };
     private ControlMode controlMode = ControlMode.None;
-    private bool Zooming = false;
+    //private bool Zooming = false;
 
     private Vector3 lastMousePositioTumble;
 
@@ -25,11 +25,11 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float maxVerticalAngle = 80f;
 
     //zoom
-    private float scrollDeltaY => Input.mouseScrollDelta.y;
-    [Header("Zoom")]
-    [SerializeField] private float zoomSpeed = 200;
-    [SerializeField] private float minZoomDistance = 2f;
-    [SerializeField] private float maxZoomDistance = 20f;
+    //private float scrollDeltaY => Input.mouseScrollDelta.y;
+    //[Header("Zoom")]
+    //[SerializeField] private float zoomSpeed = 200;
+    //[SerializeField] private float minZoomDistance = 2f;
+    //[SerializeField] private float maxZoomDistance = 20f;
 
     [Header("Snap Transforms")]
     [SerializeField] private Transform topView;
@@ -45,6 +45,8 @@ public class CameraController : MonoBehaviour
     [Header("Claw Mini Cam")]
     [SerializeField] private GameObject clawCam;
 
+    public bool OnlyHorizontalOrbit = false;
+
     private void Awake()
     {
         if (Instance == null)
@@ -59,6 +61,10 @@ public class CameraController : MonoBehaviour
         startRot = transform.rotation;
 
         InitializePitch();
+
+        if (OnlyHorizontalOrbit)
+            SnapToFrontView();
+
         LookAtTarget();
     }
 
@@ -66,8 +72,8 @@ public class CameraController : MonoBehaviour
     {
         SetModes();
 
-        if (Zooming)
-            Zoom();
+        //if (Zooming)
+        //    Zoom();
 
         switch (controlMode)
         {
@@ -89,7 +95,7 @@ public class CameraController : MonoBehaviour
         //    return;
         //}
 
-        Zooming = Input.mouseScrollDelta.y != 0;
+        //Zooming = Input.mouseScrollDelta.y != 0;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -112,7 +118,11 @@ public class CameraController : MonoBehaviour
         //find target rotation
         float amount = orbitDirection * rotateSpeed * Time.deltaTime;
         float rotateAmountX = amount * delta.x;
-        float rotateAmountY = amount * -delta.y;
+        float rotateAmountY;
+        if (OnlyHorizontalOrbit)
+            rotateAmountY = 0;
+        else
+            rotateAmountY = amount * -delta.y;
 
         Quaternion targetQHorizontal = Quaternion.AngleAxis(rotateAmountX, Vector3.up);
 
@@ -141,17 +151,17 @@ public class CameraController : MonoBehaviour
         currentPitch = Vector3.Angle(Vector3.ProjectOnPlane(dir, Vector3.up), dir);
     }
 
-    private void Zoom()
-    {
-        Vector3 directionToTarget = (LookAtPosition.position - transform.position).normalized;
+    //private void Zoom()
+    //{
+    //    Vector3 directionToTarget = (LookAtPosition.position - transform.position).normalized;
 
-        float currentDistance = Vector3.Distance(transform.position, LookAtPosition.position);
-        float zoomAmount = scrollDeltaY * zoomSpeed * Time.deltaTime;
-        float targetDistance = currentDistance - zoomAmount;
+    //    float currentDistance = Vector3.Distance(transform.position, LookAtPosition.position);
+    //    float zoomAmount = scrollDeltaY * zoomSpeed * Time.deltaTime;
+    //    float targetDistance = currentDistance - zoomAmount;
 
-        targetDistance = Mathf.Clamp(targetDistance, minZoomDistance, maxZoomDistance); //clamp distance
-        transform.position = LookAtPosition.position - directionToTarget * targetDistance;
-    }
+    //    targetDistance = Mathf.Clamp(targetDistance, minZoomDistance, maxZoomDistance); //clamp distance
+    //    transform.position = LookAtPosition.position - directionToTarget * targetDistance;
+    //}
     #endregion
 
     public void LookAtTarget()
@@ -206,5 +216,13 @@ public class CameraController : MonoBehaviour
     {
         clawCamEnabled = !clawCamEnabled;
         clawCam.SetActive(clawCamEnabled);
+    }
+
+    public void SetCameraToMode()
+    {
+        if (StaticManager.currentMode == Mode.FreePlay)
+            OnlyHorizontalOrbit = false;
+        else if (StaticManager.currentMode == Mode.Challenge)
+            OnlyHorizontalOrbit = true;
     }
 }

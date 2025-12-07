@@ -48,5 +48,9 @@ public class KeyboardInputHandler : MonoBehaviour
         //drop
         if (Input.GetKeyDown(KeyCode.Space))
             mamager.OnClawDropPressed();
+
+        //pause
+        if (Input.GetKeyDown(KeyCode.Escape))
+            UIManager.Instance.OnPauseToggle();
     }
 }
